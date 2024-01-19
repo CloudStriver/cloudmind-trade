@@ -11,9 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const CollectionName = "Balance"
+const CollectionName = "balance"
 
-var PrefixUserCacheKey = "cache:Balance:"
+var PrefixBalanceCacheKey = "cache:balance:"
 
 var _ IBalanceMongoMapper = (*MongoMapper)(nil)
 
@@ -48,7 +48,7 @@ func (m *MongoMapper) Insert(ctx context.Context, data *Balance) (string, error)
 		data.ID = primitive.NewObjectID()
 	}
 
-	key := PrefixUserCacheKey + data.ID.Hex()
+	key := PrefixBalanceCacheKey + data.ID.Hex()
 	ID, err := m.conn.InsertOne(ctx, key, data)
 	if err != nil {
 		return "", err
@@ -62,7 +62,7 @@ func (m *MongoMapper) FindOne(ctx context.Context, id string) (*Balance, error) 
 		return nil, consts.ErrInvalidObjectId
 	}
 	var data Balance
-	key := PrefixUserCacheKey + id
+	key := PrefixBalanceCacheKey + id
 	err = m.conn.FindOne(ctx, key, &data, bson.M{consts.ID: oid})
 	switch {
 	case err == nil:
@@ -92,7 +92,7 @@ func (b *Balance) ToBson() bson.M {
 }
 
 func (m *MongoMapper) Update(ctx context.Context, data *Balance, oldBalance *Balance) (*mongo.UpdateResult, error) {
-	key := PrefixUserCacheKey + oldBalance.ID.Hex()
+	key := PrefixBalanceCacheKey + oldBalance.ID.Hex()
 	res, err := m.conn.UpdateOne(ctx, key, oldBalance.ToBson(), bson.M{"$set": data})
 	return res, err
 }
@@ -102,7 +102,7 @@ func (m *MongoMapper) Delete(ctx context.Context, id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	key := PrefixUserCacheKey + id
+	key := PrefixBalanceCacheKey + id
 	res, err := m.conn.DeleteOne(ctx, key, bson.M{consts.ID: oid})
 	return res, err
 }

@@ -11,9 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const CollectionName = "Stock"
+const CollectionName = "stock"
 
-var PrefixUserCacheKey = "cache:Stock:"
+var PrefixStockCacheKey = "cache:stock:"
 
 var _ IStockMongoMapper = (*MongoMapper)(nil)
 
@@ -66,7 +66,7 @@ func (m *MongoMapper) Insert(ctx context.Context, data *Stock) (string, error) {
 		data.ID = primitive.NewObjectID()
 	}
 
-	key := PrefixUserCacheKey + data.ID.Hex()
+	key := PrefixStockCacheKey + data.ID.Hex()
 	ID, err := m.conn.InsertOne(ctx, key, data)
 	if err != nil {
 		return "", err
@@ -80,7 +80,7 @@ func (m *MongoMapper) FindOne(ctx context.Context, id string) (*Stock, error) {
 		return nil, consts.ErrInvalidObjectId
 	}
 	var data Stock
-	key := PrefixUserCacheKey + id
+	key := PrefixStockCacheKey + id
 	err = m.conn.FindOne(ctx, key, &data, bson.M{"_id": oid})
 	switch {
 	case err == nil:
@@ -93,7 +93,7 @@ func (m *MongoMapper) FindOne(ctx context.Context, id string) (*Stock, error) {
 }
 
 func (m *MongoMapper) Update(ctx context.Context, data *Stock, oldAmount *int64) (*mongo.UpdateResult, error) {
-	key := PrefixUserCacheKey + data.ID.Hex()
+	key := PrefixStockCacheKey + data.ID.Hex()
 	res, err := m.conn.UpdateOne(ctx, key, bson.M{consts.ID: data.ID, consts.Amount: oldAmount}, bson.M{"$set": data})
 	return res, err
 }
@@ -103,7 +103,7 @@ func (m *MongoMapper) Delete(ctx context.Context, id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	key := PrefixUserCacheKey + id
+	key := PrefixStockCacheKey + id
 	res, err := m.conn.DeleteOne(ctx, key, bson.M{"_id": oid})
 	return res, err
 }
