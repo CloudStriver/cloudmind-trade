@@ -4,7 +4,6 @@ import (
 	"github.com/CloudStriver/cloudmind-trade/biz/application/service"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/config"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/mapper/balance"
-	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/mapper/stock"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/stores/redis"
 	"github.com/google/wire"
 )
@@ -26,6 +25,5 @@ var InfrastructureSet = wire.NewSet(
 )
 
 var MapperSet = wire.NewSet(
-	stock.NewMongoMapper,
 	balance.NewMongoMapper,
 )

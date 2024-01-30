@@ -33,9 +33,6 @@ func (s *TradeServerImpl) GetStocks(ctx context.Context, req *trade.GetStocksReq
 	return s.StockService.GetStocks(ctx, req)
 }
 
-func (s *TradeServerImpl) CreateStock(ctx context.Context, req *trade.CreateStockReq) (resp *trade.CreateStockResp, err error) {
-	return s.StockService.CreateStock(ctx, req)
-}
-func (s *TradeServerImpl) UpdateStock(ctx context.Context, req *trade.UpdateStockReq) (resp *trade.UpdateStockResp, err error) {
-	return s.StockService.UpdateStock(ctx, req)
+func (s *TradeServerImpl) AddStock(ctx context.Context, req *trade.AddStockReq) (resp *trade.AddStockResp, err error) {
+	return s.StockService.AddStock(ctx, req)
 }
