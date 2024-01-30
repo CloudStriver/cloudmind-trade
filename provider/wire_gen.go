@@ -11,7 +11,6 @@ import (
 	"github.com/CloudStriver/cloudmind-trade/biz/application/service"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/config"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/mapper/balance"
-	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/mapper/stock"
 	"github.com/CloudStriver/cloudmind-trade/biz/infrastructure/stores/redis"
 )
 
@@ -29,11 +28,9 @@ func NewTradeServerImpl() (*adaptor.TradeServerImpl, error) {
 		Redis:              redisRedis,
 		BalanceMongoMapper: iBalanceMongoMapper,
 	}
-	iStockMongoMapper := stock.NewMongoMapper(configConfig)
 	stockServiceImpl := &service.StockServiceImpl{
-		Config:           configConfig,
-		Redis:            redisRedis,
-		StockMongoMapper: iStockMongoMapper,
+		Config: configConfig,
+		Redis:  redisRedis,
 	}
 	tradeServerImpl := &adaptor.TradeServerImpl{
 		Config:         configConfig,
