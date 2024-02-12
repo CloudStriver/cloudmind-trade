@@ -29,25 +29,18 @@ type BalanceServiceImpl struct {
 }
 
 func (s *BalanceServiceImpl) UpdateBalance(ctx context.Context, req *gentrade.UpdateBalanceReq) (resp *gentrade.UpdateBalanceResp, err error) {
+	resp = new(gentrade.UpdateBalanceResp)
 	oid, _ := primitive.ObjectIDFromHex(req.UserId)
-	oldbalance := &balancemapper.Balance{
-		ID: oid,
-	}
-	balance := &balancemapper.Balance{}
-	switch req.BalanceType {
-	case gentrade.BalanceType_FlowBalanceType:
-		oldbalance.Flow = lo.ToPtr(req.Oldbalance)
-		balance.Flow = lo.ToPtr(req.Balance)
-	case gentrade.BalanceType_MemoryBalanceType:
-		oldbalance.Memory = lo.ToPtr(req.Oldbalance)
-		balance.Memory = lo.ToPtr(req.Balance)
-	case gentrade.BalanceType_PointBalanceType:
-		oldbalance.Point = lo.ToPtr(req.Oldbalance)
-		balance.Point = lo.ToPtr(req.Balance)
-	}
-	if _, err = s.BalanceMongoMapper.Update(ctx, balance, oldbalance); err != nil {
+	result, err := s.BalanceMongoMapper.Update(ctx, &balancemapper.Balance{
+		ID:     oid,
+		Flow:   req.Flow,
+		Memory: req.Memory,
+		Point:  req.Point,
+	})
+	if err != nil {
 		return resp, err
 	}
+	resp.Ok = result.ModifiedCount != 0
 	return resp, nil
 }
 
