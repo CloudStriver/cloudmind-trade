@@ -17,6 +17,11 @@ type Config struct {
 	}
 	CacheConf cache.CacheConf
 	Redis     *redis.RedisConf
+	Balance   struct {
+		DefaultFlow   int64
+		DefaultMemory int64
+		DefaultPoint  int64
+	}
 }
 
 func NewConfig() (*Config, error) {

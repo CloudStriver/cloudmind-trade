@@ -19,10 +19,10 @@ var _ IBalanceMongoMapper = (*MongoMapper)(nil)
 
 type (
 	IBalanceMongoMapper interface {
-		Insert(ctx context.Context, data *Balance) (string, error)                                   // 插入
-		FindOne(ctx context.Context, id string) (*Balance, error)                                    // 查找
-		Update(ctx context.Context, data *Balance, oldBalance *Balance) (*mongo.UpdateResult, error) // 修改
-		Delete(ctx context.Context, id string) (int64, error)                                        // 删除
+		Insert(ctx context.Context, data *Balance) (string, error)              // 插入
+		FindOne(ctx context.Context, id string) (*Balance, error)               // 查找
+		Update(ctx context.Context, data *Balance) (*mongo.UpdateResult, error) // 修改
+		Delete(ctx context.Context, id string) (int64, error)                   // 删除
 	}
 	Balance struct {
 		ID     primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"` // 用户ID
@@ -74,26 +74,23 @@ func (m *MongoMapper) FindOne(ctx context.Context, id string) (*Balance, error) 
 	}
 }
 
-func (b *Balance) ToBson() bson.M {
-	m := bson.M{}
-	if b.ID != primitive.NilObjectID {
-		m[consts.ID] = b.ID
+func (m *MongoMapper) Update(ctx context.Context, data *Balance) (*mongo.UpdateResult, error) {
+	key := PrefixBalanceCacheKey + data.ID.Hex()
+	b := bson.M{}
+	filter := bson.M{consts.ID: data.ID}
+	if data.Flow != nil {
+		b[consts.Flow] = data.Flow
+		filter[consts.Flow] = bson.M{"$gte": data.Flow}
 	}
-	if b.Flow != nil {
-		m[consts.Flow] = b.Flow
+	if data.Memory != nil {
+		b[consts.Memory] = data.Memory
+		filter[consts.Memory] = bson.M{"$gte": data.Memory}
 	}
-	if b.Memory != nil {
-		m[consts.Memory] = b.Memory
+	if data.Point != nil {
+		b[consts.Point] = data.Point
+		filter[consts.Point] = bson.M{"$gte": data.Point}
 	}
-	if b.Point != nil {
-		m[consts.Point] = b.Point
-	}
-	return m
-}
-
-func (m *MongoMapper) Update(ctx context.Context, data *Balance, oldBalance *Balance) (*mongo.UpdateResult, error) {
-	key := PrefixBalanceCacheKey + oldBalance.ID.Hex()
-	res, err := m.conn.UpdateOne(ctx, key, oldBalance.ToBson(), bson.M{"$set": data})
+	res, err := m.conn.UpdateOne(ctx, key, filter, bson.M{"$inc": b})
 	return res, err
 }
 
